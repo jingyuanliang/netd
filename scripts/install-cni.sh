@@ -175,11 +175,6 @@ if [ "${ENABLE_PRIVATE_IPV6_ACCESS:-}" == "true" ] || [ "$ENABLE_IPV6" == "true"
     ip6tables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT -w
     # Accept new and return traffic outbound
     ip6tables -I OUTPUT -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -w
-
-    if [ "${ENABLE_CALICO_NETWORK_POLICY}" == "true" ]; then
-      echo "Enabling IPv6 forwarding..."
-      sysctl -w net.ipv6.conf.all.forwarding=1
-    fi
   else
     echo "No IPv6 address found for nic0. Clearing IPv6 subnet and route..."
     cni_spec=$(echo ${cni_spec:-} | \
