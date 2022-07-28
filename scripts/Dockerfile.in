@@ -12,17 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+FROM alpine:3.16 AS curl
+
+ADD curl.tar.gz /
+
+COPY third_party/static-curl/mykey.asc /mykey.asc
+COPY third_party/static-curl/build.sh /build.sh
+
+RUN /build.sh
+
+
+FROM debian:11.4 AS jq
+
+ADD jq.tar.gz /
+
+COPY build-jq.sh /build-jq.sh
+
+RUN /build-jq.sh
+
+
+FROM debian:11.4 as bash
+
+RUN apt-get update
+RUN apt-get install -y bash-static
+
+
 FROM {ARG_FROM}
 
 MAINTAINER Jingyuan Liang <jingyuanliang@google.com>
 
-RUN apt-get -y update
-
-# Necessary to install iproute2
-# https://github.com/GoogleCloudPlatform/netd/issues/125
-RUN apt-mark unhold libcap2
-
-RUN apt-get -y install curl jq bash iproute2
+COPY --from=curl /tmp/release/curl /usr/bin/curl
+COPY --from=jq /tmp/release/jq /usr/bin/jq
+COPY --from=bash /bin/bash-static /bin/bash
 
 # Add the platform-specific binary.
 COPY bin/{ARG_OS}_{ARG_ARCH}/{ARG_BIN} /{ARG_BIN}
