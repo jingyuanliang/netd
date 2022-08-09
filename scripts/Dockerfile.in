@@ -35,30 +35,37 @@ FROM debian:11.4 AS bash
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends --no-install-suggests bash-static
+RUN dpkg -s bash-static > /tmp/status_bash-static
 
 
-FROM {ARG_FROM} AS main
-
-MAINTAINER Jingyuan Liang <jingyuanliang@google.com>
+FROM {ARG_FROM} AS intermediate
 
 COPY --from=curl /tmp/release/curl /usr/bin/curl
+COPY status.d/curl /var/lib/dpkg/status.d/curl
 COPY --from=jq /tmp/release/jq /usr/bin/jq
+COPY status.d/jq /var/lib/dpkg/status.d/jq
 COPY --from=bash /bin/bash-static /bin/bash
+COPY --from=bash /tmp/status_bash-static /var/lib/dpkg/status.d/bash-static
 COPY toybox-{ARG_ARCH}.bin /bin/toybox
+COPY status.d/toybox /var/lib/dpkg/status.d/toybox
 
 COPY install-toybox.sh /install-toybox.sh
 
 RUN /install-toybox.sh
 
 
-FROM main AS test
+FROM intermediate AS test
 
 COPY shell-test.sh /shell-test.sh
 
 RUN /shell-test.sh
 
 
-FROM main
+FROM scratch
+
+MAINTAINER Jingyuan Liang <jingyuanliang@google.com>
+
+COPY --from=intermediate / /
 
 # This file is not being used. Include it to trigger the test run and allow manual testing.
 COPY --from=test /shell-test.sh /shell-test.sh
