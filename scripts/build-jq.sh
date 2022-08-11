@@ -1,12 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 set -exu
 
 cd /jq-*/
 
-apt-get update
-
-apt-get install -y --no-install-recommends --no-install-suggests clang make file
+apk add build-base clang
 
 # gcc doesn't work for some reason: `configure: error: C compiler cannot create executables`
 export CC=clang

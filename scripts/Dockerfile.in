@@ -22,7 +22,7 @@ COPY third_party/static-curl/build.sh /build.sh
 RUN /build.sh
 
 
-FROM debian:11.4 AS jq
+FROM alpine:3.16 AS jq
 
 ADD jq.tar.gz /
 
@@ -45,6 +45,7 @@ COPY --from=curl /tmp/lib /lib
 COPY status.d/curl /var/lib/dpkg/status.d/curl
 
 COPY --from=jq /tmp/release/jq /usr/bin/jq
+# jq doesn't have any dependency other than libc, which was covered by curl
 COPY status.d/jq /var/lib/dpkg/status.d/jq
 
 COPY --from=bash /bin/bash-static /bin/bash
