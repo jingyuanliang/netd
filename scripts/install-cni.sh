@@ -63,7 +63,7 @@ set -u -e
 # All exit paths should call `success` instead of `exit 0`,
 # so the appropriate actions can be taken according to RUN_CNI_WATCHDOG.
 success() {
-  log "Install-CNI execution completed successfully."
+  log "Install-CNI execution completed successfully; any following curl error may be expected."
   if [[ "${RUN_CNI_WATCHDOG:-}" != "true" ]]; then
     log "Not running CNI watchdog; exiting now."
     exit 0
