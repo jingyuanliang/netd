@@ -30,7 +30,7 @@ ALL_PLATFORMS ?= linux/amd64 linux/arm linux/arm64 linux/ppc64le linux/s390x
 
 # The "FROM" part of the Dockerfile.  This should be a manifest-list which
 # supports all of the platforms listed in ALL_PLATFORMS.
-BASE_IMAGE ?= registry.k8s.io/build-image/distroless-iptables:v0.8.7
+BASE_IMAGE ?= registry.k8s.io/build-image/distroless-iptables:v0.8.10
 
 # Where to push the docker images.
 REGISTRY ?= gcr.io/gke-release-staging
@@ -55,12 +55,14 @@ MAKEFLAGS += --warn-undefined-variables
 .SUFFIXES:
 
 # Used internally.  Users should pass GOOS and/or GOARCH.
+GOOS ?=
+GOARCH ?=
 OS := $(if $(GOOS),$(GOOS),$(shell GOTOOLCHAIN=local go env GOOS))
 ARCH := $(if $(GOARCH),$(GOARCH),$(shell GOTOOLCHAIN=local go env GOARCH))
 
 TAG := $(VERSION)__$(OS)_$(ARCH)
 
-GO_VERSION := 1.25
+GO_VERSION := 1.26
 BUILD_IMAGE := golang:$(GO_VERSION)-alpine
 
 BIN_EXTENSION :=
